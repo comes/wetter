@@ -4,13 +4,13 @@
             <i class="fas fa-thermometer-half"></i> {{ title }}
         </div>
         <div class="card-body">
-            <p>{{ degree }}&deg;C</p>
+            <p>{{ degree }}hpa</p>
         </div>
     </div>
 </template>
 <script>
 export default {
-  name: "Temperatur",
+  name: "Humidity",
   props: ["value", "title"],
   computed: {
     degree: function() {
