@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <current-weather endpoint="http://192.168.188.120/api/weather/current"></current-weather>
+    <current-weather endpoint="https://api.jeremiaswolff.de/api/weather/current"></current-weather>
   </div>
 </template>
 

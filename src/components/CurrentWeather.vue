@@ -17,16 +17,27 @@
 
         </div>
       </div>
-      
+    
+      <div class="card">
+        <div class="card-header">
+            <i class="fas fa-thermometer-half"></i> Temperatur Verlauf 24h
+        </div>
+        <div class="card-body">
+            <line-chart :data="pastDayTemperatur"></line-chart>
+        </div>
+      </div>
 
       <div class="card">
-          <div class="card-header">
-              <i class="fas fa-thermometer-half"></i> Temperatur Verlauf
-          </div>
-          <div class="card-body">
-              <line-chart :data="pastDayTemperatur"></line-chart>
-          </div>
+        <div class="card-header">
+            <i class="fas fa-thermometer-half"></i> Luftdruck Verlauf 24h
         </div>
+        <div class="card-body">
+            <area-chart :data="pastDayBarometer" :min="barometerMin" :max="barometerMax"></area-chart>
+        </div>
+      </div>
+
+        
+    </div>
     </div>
 </template>
 <script>
@@ -36,6 +47,8 @@ import Barometer from "./BarometerComponent.vue";
 import WindDirection from "./WindDirComponent.vue";
 import WindSpeed from "./WindSpeedComponent.vue";
 import * as moment from "moment";
+import * as _ from "lodash";
+
 export default {
   name: "CurrentWeather",
   props: ["endpoint"],
@@ -55,7 +68,10 @@ export default {
       outHumidity: false,
       windDir: false,
       windSpeed: false,
-      pastDayTemperatur: false
+      pastDayTemperatur: false,
+      pastDayBarometer: false,
+      barometerMin: 9999,
+      barometerMax: 0
     };
   },
   methods: {
@@ -70,40 +86,42 @@ export default {
         this.windSpeed = data.windSpeed;
       });
 
-      axios.get("http://192.168.188.120/api/weather").then(({ data }) => {
+      axios.get("https://api.jeremiaswolff.de/api/weather").then(({ data }) => {
         const weather_data = data.data;
-        // console.log(
-        //   _.map(weather_data, _.partial(_.pick, _, ["dateTime", "inTemp"]))
-        // );
-        data = [
-          {
-            name: "Workout",
-            data: {
-              "2017-01-01 00:00:00 -0800": 3,
-              "2017-01-02 00:00:00 -0800": 4
-            }
-          },
-          {
-            name: "Call parents",
-            data: {
-              "2017-01-01 00:00:00 -0800": 5,
-              "2017-01-02 00:00:00 -0800": 3
-            }
-          }
-        ];
+
         let inTemp = {};
         let outTemp = {};
+        let barometerData = {};
 
+        let barometerMin = 9999;
+        let barometerMax = 0;
         _.each(weather_data, function(item) {
           let date = moment.unix(item.dateTime).toDate();
           inTemp[date] = (item.inTemp / 1).toFixed(1);
           outTemp[date] = (item.outTemp / 1).toFixed(1);
+
+          let barometer = (item.barometer / 1).toFixed(1);
+
+          barometerData[date] = barometer;
+
+          if (barometerMin > barometer) {
+            barometerMin = barometer;
+          } else if (barometerMax < barometer) {
+            barometerMax = barometer;
+          }
         });
 
         this.pastDayTemperatur = [
           { name: "innen", data: inTemp },
           { name: "aussen", data: outTemp }
         ];
+
+        this.pastDayBarometer = [
+          { name: "abs Luftdruck (hPa)", data: barometerData }
+        ];
+
+        this.barometerMax = Math.ceil(barometerMax + 2);
+        this.barometerMin = Math.floor(barometerMin - 2);
       });
     }
   },
