@@ -1,6 +1,6 @@
 <template>
     <div class="current">
-      <div class="card">
+      <div class="card my-4">
         <div class="card-body">
           <h5 class="card-title">Aktuelle Wetterdaten</h5>
           <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
@@ -18,26 +18,23 @@
         </div>
       </div>
     
-      <div class="card">
+      <div class="card my-4">
         <div class="card-header">
-            <i class="fas fa-thermometer-half"></i> Temperatur Verlauf 24h
+            <i class="fas fa-thermometer-half"></i> Temperatur Verlauf 7-Tage
         </div>
         <div class="card-body">
             <line-chart :data="pastDayTemperatur"></line-chart>
         </div>
       </div>
 
-      <div class="card">
+      <div class="card my-4">
         <div class="card-header">
-            <i class="fas fa-thermometer-half"></i> Luftdruck Verlauf 24h
+            <i class="fas fa-thermometer-half"></i> Luftdruck Verlauf 7-Tage
         </div>
         <div class="card-body">
             <area-chart :data="pastDayBarometer" :min="barometerMin" :max="barometerMax"></area-chart>
         </div>
-      </div>
-
-        
-    </div>
+      </div>        
     </div>
 </template>
 <script>
@@ -70,8 +67,8 @@ export default {
       windSpeed: false,
       pastDayTemperatur: false,
       pastDayBarometer: false,
-      barometerMin: 9999,
-      barometerMax: 0
+      barometerMin: false,
+      barometerMax: false
     };
   },
   methods: {
@@ -89,7 +86,6 @@ export default {
       axios.get("https://api.jeremiaswolff.de/api/weather").then(({ data }) => {
         const weather_data = data.data;
 
-        let inTemp = {};
         let outTemp = {};
         let barometerData = {};
 
@@ -97,7 +93,6 @@ export default {
         let barometerMax = 0;
         _.each(weather_data, function(item) {
           let date = moment.unix(item.dateTime).toDate();
-          inTemp[date] = (item.inTemp / 1).toFixed(1);
           outTemp[date] = (item.outTemp / 1).toFixed(1);
 
           let barometer = (item.barometer / 1).toFixed(1);
@@ -106,22 +101,21 @@ export default {
 
           if (barometerMin > barometer) {
             barometerMin = barometer;
-          } else if (barometerMax < barometer) {
+          }
+
+          if (barometerMax < barometer) {
             barometerMax = barometer;
           }
         });
 
-        this.pastDayTemperatur = [
-          { name: "innen", data: inTemp },
-          { name: "aussen", data: outTemp }
-        ];
+        this.pastDayTemperatur = [{ name: "aussen", data: outTemp }];
 
         this.pastDayBarometer = [
           { name: "abs Luftdruck (hPa)", data: barometerData }
         ];
 
-        this.barometerMax = Math.ceil(barometerMax + 2);
-        this.barometerMin = Math.floor(barometerMin - 2);
+        this.barometerMax = Math.ceil(barometerMax) + 2;
+        this.barometerMin = Math.floor(barometerMin) - 2;
       });
     }
   },
