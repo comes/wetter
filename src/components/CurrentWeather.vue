@@ -23,7 +23,12 @@
             <i class="fas fa-thermometer-half"></i> Temperatur Verlauf 7-Tage
         </div>
         <div class="card-body">
-            <line-chart :data="pastDayTemperatur"></line-chart>
+            <line-chart xtitle="Time"
+            :legend="false"
+            ytitle="Temperatur"
+            decimal=","
+            suffix="°C"
+            :data="pastDayTemperatur"></line-chart>
         </div>
       </div>
 
@@ -32,7 +37,14 @@
             <i class="fas fa-thermometer-half"></i> Luftdruck Verlauf 7-Tage
         </div>
         <div class="card-body">
-            <area-chart :data="pastDayBarometer" :min="barometerMin" :max="barometerMax"></area-chart>
+            <area-chart xtitle="Time" ytitle="Druck"
+            height="400px"
+            :legend="false" 
+            decimal=","
+            suffix=" hPa"
+            :data="pastDayBarometer"
+            :min="barometerMin"
+            :max="barometerMax"></area-chart>
         </div>
       </div>        
     </div>
