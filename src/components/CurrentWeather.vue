@@ -6,8 +6,8 @@
           <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
           
           <div class="card-columns">
-            <Temperatur :value="inTemp" title="innen" v-if="inTemp"></temperatur>
-            <Temperatur :value="outTemp" title="aussen" v-if="outTemp"></temperatur>
+            <Temperatur :value="inTemp" title="innen" v-if="inTemp" class="col-2"></temperatur>
+            <Temperatur :value="outTemp" title="aussen" v-if="outTemp" class="col-2"></temperatur>
             <humidity :value="inHumidity" title="Luftfeuchtigkeit innen" v-if="inHumidity"></humidity>
             <humidity :value="outHumidity" title="Luftfeuchtigkeit außen" v-if="outHumidity"></humidity>
             <barometer :value="barometer" title="Luftdruck" v-if="barometer"></barometer>
