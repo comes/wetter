@@ -12,6 +12,9 @@
             :data="value"
             :min="min"
             :max="max"></area-chart>
+
+
+            
         </div>
       </div>  
 </template>
