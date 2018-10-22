@@ -20,7 +20,7 @@
     
       <div class="card my-4">
         <div class="card-header">
-            <i class="fas fa-thermometer-half"></i> Temperatur Verlauf 7-Tage
+            <i class="fas fa-thermometer-half"></i> Temperatur &mdash; Verlauf 7-Tage
         </div>
         <div class="card-body">
             <line-chart xtitle="Time"
@@ -32,21 +32,21 @@
         </div>
       </div>
 
+      <pressure-graph class="my-4" :min="barometerMin" :max="barometerMax" :value="pastDayBarometer"></pressure-graph>
+
       <div class="card my-4">
         <div class="card-header">
-            <i class="fas fa-thermometer-half"></i> Luftdruck Verlauf 7-Tage
+            <i class="fas fa-cloud"></i> Regen pro Stunde &mdash; Verlauf 7-Tage
         </div>
         <div class="card-body">
-            <area-chart xtitle="Time" ytitle="Druck"
-            height="400px"
-            :legend="false" 
+            <line-chart xtitle="Time"
+            :legend="false"
+            ytitle="l/h"
             decimal=","
-            suffix=" hPa"
-            :data="pastDayBarometer"
-            :min="barometerMin"
-            :max="barometerMax"></area-chart>
+            suffix=""
+            :data="rainData"></line-chart>
         </div>
-      </div>        
+      </div>
     </div>
 </template>
 <script>
@@ -55,6 +55,7 @@ import Humidity from "./HumidityComponent.vue";
 import Barometer from "./BarometerComponent.vue";
 import WindDirection from "./WindDirComponent.vue";
 import WindSpeed from "./WindSpeedComponent.vue";
+import PressureGraph from "./PressureGraphComponent.vue";
 import * as moment from "moment";
 import * as _ from "lodash";
 
@@ -66,7 +67,8 @@ export default {
     Humidity,
     Barometer,
     WindDirection,
-    WindSpeed
+    WindSpeed,
+    PressureGraph
   },
   data() {
     return {
@@ -80,7 +82,8 @@ export default {
       pastDayTemperatur: false,
       pastDayBarometer: false,
       barometerMin: false,
-      barometerMax: false
+      barometerMax: false,
+      rainData: false
     };
   },
   methods: {
@@ -100,12 +103,14 @@ export default {
 
         let outTemp = {};
         let barometerData = {};
+        let rainData = {};
 
         let barometerMin = 9999;
         let barometerMax = 0;
         _.each(weather_data, function(item) {
           let date = moment.unix(item.dateTime).toDate();
           outTemp[date] = (item.outTemp / 1).toFixed(1);
+          rainData[date] = (item.rainRate / 1).toFixed(1);
 
           let barometer = (item.barometer / 1).toFixed(1);
 
@@ -121,7 +126,7 @@ export default {
         });
 
         this.pastDayTemperatur = [{ name: "aussen", data: outTemp }];
-
+        this.rainData = [{ name: "regen", data: rainData }];
         this.pastDayBarometer = [
           { name: "abs Luftdruck (hPa)", data: barometerData }
         ];
