@@ -129,7 +129,7 @@ export default {
       });
 
       axios.get("https://api.jeremiaswolff.de/api/weather").then(({ data }) => {
-        const weather_data = data.data;
+        const weather_data = data; //.data;
 
         let outTemp = {};
         let barometerData = {};
@@ -170,7 +170,7 @@ export default {
         this.barometerMax = Math.ceil(barometerMax) + 2;
         this.barometerMin = Math.floor(barometerMin) - 2;
 
-        this.rawData = data.data;
+        this.rawData = weather_data;
       });
     }
   },

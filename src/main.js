@@ -7,14 +7,13 @@ import App from './App.vue'
 
 import Highcharts from 'highcharts';
 // Alternatively, this is how to load Highstock. Highmaps and Highcharts Gantt are similar.
-// import Highcharts from 'highcharts/highstock';
+import stockInit from 'highcharts/modules/stock'
 
 // Load the exporting module.
 import WindbarbInit from 'highcharts/modules/windbarb';
 // Initialize exporting module.
 WindbarbInit(Highcharts);
-
-
+stockInit(Highcharts);
 
 Vue.config.productionTip = false
 Vue.use(VueChartkick, {
