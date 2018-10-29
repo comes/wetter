@@ -4,7 +4,7 @@
             <i class="fas fa-thermometer-half"></i> {{ title }}
         </div>
         <div class="card-body">
-            <p>{{ degree }}hpa</p>
+            <p>{{ v }}hpa</p>
         </div>
     </div>
 </template>
@@ -13,7 +13,7 @@ export default {
   name: "Humidity",
   props: ["value", "title"],
   computed: {
-    degree: function() {
+    v: function() {
       let val = (this.value / 1).toFixed(1).replace(".", ",");
       return val;
     }

@@ -8,10 +8,14 @@
                 <i class="fas fa-long-arrow-alt-up fa-4x" :style="rotate"></i><br>
             </div>
             <strong>{{ degToCompass }}</strong> ({{ value }}&deg;)
+
+            <apex-charts height="300px" type="radialBar" :options="chartOptions" :series="[value]"></apex-charts>
         </div>
     </div>
 </template>
 <script>
+import ApexCharts from "vue-apexcharts";
+
 export default {
   name: "Humidity",
   props: {
@@ -21,6 +25,12 @@ export default {
     title: {
       default: false
     }
+  },
+  components: {
+    ApexCharts
+  },
+  data() {
+    return {};
   },
   computed: {
     rotate: function() {

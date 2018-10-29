@@ -4,7 +4,7 @@
         <div class="card-body">
           <h5 class="card-title">Aktuelle Wetterdaten</h5>
           <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
-          
+    
           <div class="card-columns">
             <Temperatur :value="inTemp" title="innen" v-if="inTemp"></temperatur>
             <Temperatur :value="outTemp" title="aussen" v-if="outTemp"></temperatur>
@@ -17,50 +17,21 @@
 
         </div>
       </div>
-    
-      <div class="card my-4">
-        <div class="card-header">
-            <i class="fas fa-thermometer-half"></i> Temperatur &mdash; Verlauf 7-Tage
-        </div>
-        <div class="card-body">
-            <line-chart xtitle="Time"
-            :legend="false"
-            ytitle="Temperatur"
-            decimal=","
-            suffix="°C"
-            :data="pastDayTemperatur"></line-chart>
-        </div>
-      </div>
 
-      <pressure-graph class="my-4" :min="barometerMin" :max="barometerMax" :value="pastDayBarometer"></pressure-graph>
+      <range-chart :value="tempChartData" title="Außen Temperatur"></range-chart>
 
-      <highcharts :options="chartOptions"></highcharts>
-
-      <wind-graph :value="rawData"></wind-graph>
-
-      <div class="card my-4">
-        <div class="card-header">
-            <i class="fas fa-cloud"></i> Regen pro Stunde &mdash; Verlauf 7-Tage
-        </div>
-        <div class="card-body">
-            <line-chart xtitle="Time"
-            :legend="false"
-            ytitle="l/h"
-            decimal=","
-            suffix=""
-            :data="rainData"></line-chart>
-        </div>
-      </div>
+      <range-chart :value="barometerChartData" title="Luftdruck (hPa)"></range-chart>
+      <range-chart type="bar" :value="rainChartData" title="Regen (mm/h)"></range-chart>
+      
     </div>
 </template>
 <script>
+import RangeChart from "./RangeChart.vue";
 import Temperatur from "./TemperatureComponent.vue";
 import Humidity from "./HumidityComponent.vue";
 import Barometer from "./BarometerComponent.vue";
 import WindDirection from "./WindDirComponent.vue";
 import WindSpeed from "./WindSpeedComponent.vue";
-import PressureGraph from "./PressureGraphComponent.vue";
-import WindGraph from "./WindComponent.vue";
 import * as moment from "moment";
 import * as _ from "lodash";
 
@@ -73,8 +44,7 @@ export default {
     Barometer,
     WindDirection,
     WindSpeed,
-    PressureGraph,
-    WindGraph
+    RangeChart
   },
   data() {
     return {
@@ -87,68 +57,83 @@ export default {
       windSpeed: false,
       pastDayTemperatur: false,
       pastDayBarometer: false,
-      barometerMin: false,
-      barometerMax: false,
       rainData: false,
-      rawData: [],
-      chartOptions: {
-        xAxis: {
-          type: "datetime",
-          dateTimeLabelFormats: {
-            millisecond: "%H:%M:%S.%L",
-            second: "%H:%M:%S",
-            minute: "%H:%M",
-            hour: "%H:%M",
-            day: "%e. %b",
-            week: "%e. %b",
-            month: "%b '%y",
-            year: "%Y"
-          },
-          title: {
-            text: "Date"
-          }
-        },
-        series: [
-          {
-            data: [1, 2, 3] // sample data
-          }
-        ]
-      }
+      tempChartData: [],
+      barometerChartData: [],
+      rainChartData: []
     };
   },
   methods: {
+    getDataPerPage: function(url) {
+      if (url) {
+        axios.get(url).then(({ data }) => {
+          const weather_data = data.data;
+          let tempChartData = this.tempChartData;
+          let barometerChartData = this.barometerChartData;
+          let rainChartData = this.rainChartData;
+          _.each(weather_data, function(item) {
+            let m = moment.unix(item.dateTime);
+            let date = m.toDate();
+            let microtime = m.valueOf();
+
+            barometerChartData.push([
+              microtime,
+              parseFloat((item.barometer / 1).toFixed(1))
+            ]);
+
+            rainChartData.push([
+              microtime,
+              parseFloat((item.rainRate / 1).toFixed(1))
+            ]);
+
+            tempChartData.push([
+              microtime,
+              parseFloat((item.outTemp / 1).toFixed(1))
+            ]);
+          });
+
+          this.getDataPerPage(data.next_page_url);
+        });
+      }
+    },
+
     fetchData: function() {
       axios.get(this.endpoint).then(({ data }) => {
         this.inTemp = data.inTemp;
         this.outTemp = data.outTemp;
-        this.inHumidity = data.inHumidity;
-        this.outHumidity = data.outHumidity;
-        this.barometer = data.barometer;
         this.windDir = data.windDir;
         this.windSpeed = data.windSpeed;
+        this.barometer = data.barometer;
+        this.inHumidity = data.inHumidity;
+        this.outHumidity = data.outHumidity;
       });
 
       axios.get("https://api.jeremiaswolff.de/api/weather").then(({ data }) => {
-        const weather_data = data; //.data;
+        this.getDataPerPage(data.next_page_url);
+        const weather_data = data.data;
 
-        let outTemp = {};
-        let barometerData = {};
-        let rainData = {};
-
-        let barometerMin = 9999;
-        let barometerMax = 0;
-
-        let highchartData = [];
+        let tempChartData = this.tempChartData;
+        let barometerChartData = this.barometerChartData;
+        let rainChartData = this.rainChartData;
         _.each(weather_data, function(item) {
-          let date = moment.unix(item.dateTime).toDate();
-          let microtime = moment.unix(item.dateTime).valueOf();
+          let m = moment.unix(item.dateTime);
+          let date = m.toDate();
+          let microtime = m.valueOf();
+          let barometer = parseFloat((item.barometer / 1).toFixed(1));
 
-          outTemp[date] = (item.outTemp / 1).toFixed(1);
-          rainData[date] = (item.rainRate / 1).toFixed(1);
+          rainChartData.push([
+            microtime,
+            parseFloat((item.rainRate / 1).toFixed(1))
+          ]);
+          tempChartData.push([
+            microtime,
+            parseFloat((item.outTemp / 1).toFixed(1))
+          ]);
 
-          let barometer = (item.barometer / 1).toFixed(1);
-          highchartData.push([microtime, parseFloat(barometer)]);
-          barometerData[date] = barometer;
+          barometerChartData.push([
+            microtime,
+            parseFloat((item.barometer / 1).toFixed(1))
+          ]);
 
           if (barometerMin > barometer) {
             barometerMin = barometer;
@@ -159,14 +144,13 @@ export default {
           }
         });
 
-        this.chartOptions.series[0].data = highchartData;
-
         this.pastDayTemperatur = [{ name: "aussen", data: outTemp }];
         this.rainData = [{ name: "regen", data: rainData }];
         this.pastDayBarometer = [
           { name: "abs Luftdruck (hPa)", data: barometerData }
         ];
 
+        this.series[0].data = highchartData;
         this.barometerMax = Math.ceil(barometerMax) + 2;
         this.barometerMin = Math.floor(barometerMin) - 2;
 

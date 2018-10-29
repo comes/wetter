@@ -46,6 +46,10 @@ export default {
         },
 
         plotOptions: {
+          series: {
+            pointStart: lastTime,
+            pointInterval: 18e5
+          },
           area: {
             pointStart: lastTime,
             pointInterval: 18e5
