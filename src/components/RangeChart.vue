@@ -39,6 +39,7 @@ export default {
         chart: {
           toolbar: { show: true },
           animations: {
+            enabled: false,
             initialAnimation: {
               enabled: false
             }

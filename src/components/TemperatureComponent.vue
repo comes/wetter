@@ -4,9 +4,7 @@
             <i class="fas fa-thermometer-half"></i> {{ title }}
         </div>
         <div class="card-body">
-            <p>{{ degree }}&deg;C</p>
             <apex-charts type="radialBar" :options="chartOptions" :series="[50 + value]"></apex-charts>
-
         </div>
     </div>
 </template>
@@ -25,7 +23,7 @@ export default {
           height: 350,
           type: "radialBar",
           toolbar: {
-            show: true
+            show: false
           }
         },
         plotOptions: {
@@ -71,7 +69,7 @@ export default {
               },
               value: {
                 formatter: function(val) {
-                  return ((val - 50) / 1).toFixed(1).replace(".", ",") + "°C";
+                  return ((val - 50) / 1).toFixed(1).replace(".", ",");
                 },
                 color: "#111",
                 fontSize: "36px",
@@ -97,7 +95,7 @@ export default {
         stroke: {
           lineCap: "round"
         },
-        labels: ["Percent"]
+        labels: ["°C"]
       }
     };
   },

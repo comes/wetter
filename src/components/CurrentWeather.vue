@@ -55,9 +55,6 @@ export default {
       outHumidity: false,
       windDir: false,
       windSpeed: false,
-      pastDayTemperatur: false,
-      pastDayBarometer: false,
-      rainData: false,
       tempChartData: [],
       barometerChartData: [],
       rainChartData: []
@@ -117,8 +114,8 @@ export default {
         let rainChartData = this.rainChartData;
         _.each(weather_data, function(item) {
           let m = moment.unix(item.dateTime);
-          let date = m.toDate();
           let microtime = m.valueOf();
+
           let barometer = parseFloat((item.barometer / 1).toFixed(1));
 
           rainChartData.push([
@@ -134,27 +131,7 @@ export default {
             microtime,
             parseFloat((item.barometer / 1).toFixed(1))
           ]);
-
-          if (barometerMin > barometer) {
-            barometerMin = barometer;
-          }
-
-          if (barometerMax < barometer) {
-            barometerMax = barometer;
-          }
         });
-
-        this.pastDayTemperatur = [{ name: "aussen", data: outTemp }];
-        this.rainData = [{ name: "regen", data: rainData }];
-        this.pastDayBarometer = [
-          { name: "abs Luftdruck (hPa)", data: barometerData }
-        ];
-
-        this.series[0].data = highchartData;
-        this.barometerMax = Math.ceil(barometerMax) + 2;
-        this.barometerMin = Math.floor(barometerMin) - 2;
-
-        this.rawData = weather_data;
       });
     }
   },
