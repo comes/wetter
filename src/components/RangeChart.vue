@@ -58,8 +58,10 @@ export default {
         },
         xaxis: {
           type: "datetime",
-          min: undefined,
-          max: undefined,
+          min: moment()
+            .subtract(1, "week")
+            .valueOf(),
+          max: moment().valueOf(),
           tickAmount: 6
         },
         yaxis: {
@@ -73,7 +75,7 @@ export default {
     series: function() {
       return [
         {
-          name: "außen Temperatur",
+          name: this.title,
           data: this.value
         }
       ];
@@ -95,6 +97,17 @@ export default {
             xaxis: {
               min: moment()
                 .subtract(1, "year")
+                .valueOf(),
+              max: moment().valueOf()
+            }
+          };
+
+          break;
+        case "6m":
+          this.chartOptions = {
+            xaxis: {
+              min: moment()
+                .subtract(6, "month")
                 .valueOf(),
               max: moment().valueOf()
             }
