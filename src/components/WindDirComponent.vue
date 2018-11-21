@@ -7,46 +7,42 @@
             <div class="">
                 <i class="fas fa-long-arrow-alt-up fa-4x" :style="rotate"></i><br>
             </div>
-            <strong>{{ degToCompass }}</strong> ({{ value }}&deg;)
+            <strong>{{ direction | compass }}
+            </strong>{{ direction | degree }}
 
             <apex-charts height="300px" type="radialBar" :options="chartOptions" :series="[value]"></apex-charts>
         </div>
     </div>
 </template>
 <script>
-import ApexCharts from "vue-apexcharts";
-
 export default {
-  name: "Humidity",
+  name: "WindSpeedDirection",
   props: {
-    value: {
+    direction: {
+      default: false
+    },
+    speed: {
       default: false
     },
     title: {
       default: false
     }
   },
-  components: {
-    ApexCharts
-  },
-  data() {
-    return {};
-  },
-  computed: {
-    rotate: function() {
-      return `transform: rotate(${this.value}deg);`;
+  filters: {
+    degree: value => {
+      return `${value}°`;
     },
-    degToCompass: function() {
-      let val = Math.floor(this.value / 22.5 + 0.5);
+    compass: function(val) {
+      let ret = Math.floor(val / 22.5 + 0.5);
       let arr = [
         "N",
-        "NNE",
-        "NE",
-        "ENE",
-        "E",
-        "ESE",
-        "SE",
-        "SSE",
+        "NNO",
+        "NO",
+        "ONO",
+        "O",
+        "OSO",
+        "SO",
+        "SSO",
         "S",
         "SSW",
         "SW",
@@ -56,7 +52,12 @@ export default {
         "NW",
         "NNW"
       ];
-      return arr[val % 16];
+      return arr[ret % 16];
+    }
+  },
+  computed: {
+    rotate: function() {
+      return `transform: rotate(${this.direction}deg);`;
     }
   }
 };

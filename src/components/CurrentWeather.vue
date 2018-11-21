@@ -1,27 +1,16 @@
 <template>
     <div class="current">
-      <div class="card my-4">
-        <div class="card-body">
-          <h5 class="card-title">Aktuelle Wetterdaten</h5>
-          <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
-    
-          <div class="card-columns">
-            <Temperatur :value="inTemp" title="innen" v-if="inTemp"></temperatur>
-            <Temperatur :value="outTemp" title="aussen" v-if="outTemp"></temperatur>
-            <humidity :value="inHumidity" title="Luftfeuchtigkeit innen" v-if="inHumidity"></humidity>
-            <humidity :value="outHumidity" title="Luftfeuchtigkeit außen" v-if="outHumidity"></humidity>
+      <div class="card-deck">
+            <Temperatur :inTemp="inTemp" :outTemp="outTemp" title="Temp" v-if="inTemp"></temperatur>
+            <humidity :inHumidity="inHumidity" :outHumidity="outHumidity" title="Luftfeuchtigkeit" v-if="inHumidity"></humidity>
             <barometer :value="barometer" title="Luftdruck" v-if="barometer"></barometer>
-            <wind-direction :value="windDir" title="Windrichtung" v-if="windDir"></wind-direction>
-            <wind-speed :value="windSpeed" title="Windgeschwindigkeit" v-if="windSpeed"></wind-speed>
-          </div>
-
-        </div>
+            <wind-direction :direction="windDir" :speed="windSpeed" title="Windrichtung" v-if="windDir"></wind-direction>
       </div>
 
       <range-chart :value="tempChartData" title="Außen Temperatur"></range-chart>
-
+      <barometer-wind-chart :barometer="barometerChartData" :wind="windChartData"></barometer-wind-chart>
       <range-chart :value="barometerChartData" title="Luftdruck (hPa)"></range-chart>
-      <range-chart type="bar" :value="rainChartData" title="Regen (mm/h)"></range-chart>
+      <range-chart :value="rainChartData" title="Regen (mm/h)"></range-chart>
       
     </div>
 </template>
@@ -32,6 +21,7 @@ import Humidity from "./HumidityComponent.vue";
 import Barometer from "./BarometerComponent.vue";
 import WindDirection from "./WindDirComponent.vue";
 import WindSpeed from "./WindSpeedComponent.vue";
+import BarometerWindChart from "./BarometerWindChart.vue";
 import * as moment from "moment";
 import * as _ from "lodash";
 
@@ -44,7 +34,8 @@ export default {
     Barometer,
     WindDirection,
     WindSpeed,
-    RangeChart
+    RangeChart,
+    BarometerWindChart
   },
   data() {
     return {
@@ -57,6 +48,7 @@ export default {
       windSpeed: false,
       tempChartData: [],
       barometerChartData: [],
+      windChartData: [],
       rainChartData: []
     };
   },
@@ -68,6 +60,7 @@ export default {
           let tempChartData = this.tempChartData;
           let barometerChartData = this.barometerChartData;
           let rainChartData = this.rainChartData;
+          let windChartData = this.windChartData;
           _.each(weather_data, function(item) {
             let m = moment.unix(item.dateTime);
             let date = m.toDate();
@@ -76,6 +69,11 @@ export default {
             barometerChartData.push([
               microtime,
               parseFloat((item.barometer / 1).toFixed(1))
+            ]);
+
+            windChartData.push([
+              microtime,
+              parseFloat(item.windSpeed / 1).toFixed(2)
             ]);
 
             rainChartData.push([
@@ -112,6 +110,8 @@ export default {
         let tempChartData = this.tempChartData;
         let barometerChartData = this.barometerChartData;
         let rainChartData = this.rainChartData;
+        let windChartData = this.windChartData;
+
         _.each(weather_data, function(item) {
           let m = moment.unix(item.dateTime);
           let microtime = m.valueOf();
@@ -122,6 +122,12 @@ export default {
             microtime,
             parseFloat((item.rainRate / 1).toFixed(1))
           ]);
+
+          windChartData.push([
+            microtime,
+            parseFloat(item.windSpeed).toFixed(2)
+          ]);
+
           tempChartData.push([
             microtime,
             parseFloat((item.outTemp / 1).toFixed(1))

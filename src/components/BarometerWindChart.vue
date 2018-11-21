@@ -38,7 +38,6 @@ export default {
       chartOptions: {
         // https://apexcharts.com/docs/options/yaxis/
         chart: {
-          foreColor: "#ccc",
           toolbar: { show: true },
           animations: {
             enabled: false,
@@ -48,7 +47,6 @@ export default {
           }
         },
         tooltip: {
-          theme: "dark",
           x: {
             format: "dd.MM.yyyy HH:mm"
           }
@@ -61,14 +59,9 @@ export default {
         },
         // colors: ["#546E7A", "#ff0000"],
         fill: {
-          opacity: [0.85, 0.25, 1],
+          opacity: [0.25],
           gradient: {
-            inverseColors: true,
-            shade: "light"
-            // type: "vertical"
-            // opacityFrom: 1,
-            // opacityTo: 1,
-            // stops: [0, 100, 100, 100]
+            inverseColors: true
           }
         },
         xaxis: {
@@ -84,10 +77,12 @@ export default {
         },
         yaxis: [
           {
+            axisTicks: {
+              show: true
+            },
             title: {
               text: "Barometer (hPa)"
-            },
-            min: 960
+            }
           },
           {
             opposite: true,
