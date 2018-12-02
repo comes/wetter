@@ -38,6 +38,7 @@ export default {
       chartOptions: {
         // https://apexcharts.com/docs/options/yaxis/
         chart: {
+          stacked: false,
           toolbar: { show: true },
           animations: {
             enabled: false,
@@ -57,9 +58,9 @@ export default {
         sparkline: {
           enabled: true
         },
-        // colors: ["#546E7A", "#ff0000"],
+        colors: ["#546E7A", "#ff0000"],
         fill: {
-          opacity: [0.25],
+          opacity: [0.25, 1, 1],
           gradient: {
             inverseColors: true
           }
@@ -72,7 +73,7 @@ export default {
           max: moment().valueOf()
         },
         stroke: {
-          width: [0, 4],
+          width: [4, 4],
           curve: "smooth"
         },
         yaxis: [
@@ -82,9 +83,11 @@ export default {
             },
             title: {
               text: "Barometer (hPa)"
-            }
+            },
+            min: 960
           },
           {
+            max: 20,
             opposite: true,
             title: {
               text: "Wind (m/s)"
@@ -98,7 +101,7 @@ export default {
     series: function() {
       return [
         {
-          name: this.title,
+          name: "Luftdruck",
           data: this.barometer,
           type: "area"
         },
