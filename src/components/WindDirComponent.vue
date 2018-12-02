@@ -10,7 +10,6 @@
             <strong>{{ direction | compass }}
             </strong>{{ direction | degree }}
 
-            <apex-charts height="300px" type="radialBar" :options="chartOptions" :series="[value]"></apex-charts>
         </div>
     </div>
 </template>

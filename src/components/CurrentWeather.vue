@@ -1,18 +1,37 @@
 <template>
-    <div class="current">
-      <div class="card-deck">
-            <Temperatur :inTemp="inTemp" :outTemp="outTemp" title="Temp" v-if="inTemp"></temperatur>
-            <humidity :inHumidity="inHumidity" :outHumidity="outHumidity" title="Luftfeuchtigkeit" v-if="inHumidity"></humidity>
-            <barometer :value="barometer" title="Luftdruck" v-if="barometer"></barometer>
-            <wind-direction :direction="windDir" :speed="windSpeed" title="Windrichtung" v-if="windDir"></wind-direction>
-      </div>
-
-      <range-chart :value="tempChartData" title="Außen Temperatur"></range-chart>
-      <barometer-wind-chart :barometer="barometerChartData" :wind="windChartData"></barometer-wind-chart>
-      <range-chart :value="barometerChartData" title="Luftdruck (hPa)"></range-chart>
-      <range-chart :value="rainChartData" title="Regen (mm/h)"></range-chart>
-      
+  <div class="current">
+    <div class="card-deck my-4">
+      <temperatur :inTemp="inTemp" :outTemp="outTemp" title="Temp" v-if="inTemp"></temperatur>
+      <humidity
+        :inHumidity="inHumidity"
+        :outHumidity="outHumidity"
+        title="Luftfeuchtigkeit"
+        v-if="inHumidity"
+      ></humidity>
     </div>
+    <div class="card-deck my-4">
+      <barometer :value="barometer" title="Luftdruck" v-if="barometer"></barometer>
+      <wind-direction :direction="windDir" :speed="windSpeed" title="Windrichtung" v-if="windDir"></wind-direction>
+      <rain
+        :rain24="rain24"
+        :rainCurrent="rainCurrentMonth"
+        :rain="rain"
+        :rainLastMonth="rainLastMonth"
+        v-if="inHumidity"
+      ></rain>
+    </div>
+
+    <!-- <mixed-chart
+        :tempChill="tempChillData"
+        :tempOut="tempChartData"
+        :barometer="barometerChartData"
+    :wind="windChartData"></mixed-chart>-->
+    <range-chart :value="tempChartData" title="Außen Temperatur"></range-chart>
+    <barometer-wind-chart :barometer="barometerChartData" :wind="windChartData"></barometer-wind-chart>
+    <!-- <range-chart :value="barometerChartData" title="Wind (m/s)"></range-chart>
+    <range-chart :value="barometerChartData" title="Luftdruck (hPa)"></range-chart>-->
+    <range-chart :value="rainChartData" title="Regen (mm/h)"></range-chart>
+  </div>
 </template>
 <script>
 import RangeChart from "./RangeChart.vue";
@@ -22,6 +41,7 @@ import Barometer from "./BarometerComponent.vue";
 import WindDirection from "./WindDirComponent.vue";
 import WindSpeed from "./WindSpeedComponent.vue";
 import BarometerWindChart from "./BarometerWindChart.vue";
+import Rain from "./RainComponent.vue";
 import * as moment from "moment";
 import * as _ from "lodash";
 
@@ -29,6 +49,7 @@ export default {
   name: "CurrentWeather",
   props: ["endpoint"],
   components: {
+    Rain,
     Temperatur,
     Humidity,
     Barometer,
@@ -46,9 +67,14 @@ export default {
       outHumidity: false,
       windDir: false,
       windSpeed: false,
+      rain24: false,
+      rainCurrentMonth: false,
+      rain: false,
+      rainLastMonth: false,
       tempChartData: [],
       barometerChartData: [],
       windChartData: [],
+      windChillData: [],
       rainChartData: []
     };
   },
@@ -73,7 +99,7 @@ export default {
 
             windChartData.push([
               microtime,
-              parseFloat(item.windSpeed / 1).toFixed(2)
+              parseFloat((item.windSpeed / 1).toFixed(1))
             ]);
 
             rainChartData.push([
@@ -101,6 +127,18 @@ export default {
         this.barometer = data.barometer;
         this.inHumidity = data.inHumidity;
         this.outHumidity = data.outHumidity;
+
+        this.rain24 = data.rain24h;
+        this.rainCurrentMonth = data.rainCurrentMonth;
+        this.rain = data.rain;
+        this.rainLastMonth = data.rainLastMonth;
+
+        console.log(data);
+      });
+
+      axios.get("https://api.jeremiaswolff.de/version").then(response => {
+        const api_version = response.data;
+        console.log(`API Version: ${api_version}`);
       });
 
       axios.get("https://api.jeremiaswolff.de/api/weather").then(({ data }) => {
@@ -125,7 +163,7 @@ export default {
 
           windChartData.push([
             microtime,
-            parseFloat(item.windSpeed).toFixed(2)
+            parseFloat((item.windSpeed / 1).toFixed(1))
           ]);
 
           tempChartData.push([
